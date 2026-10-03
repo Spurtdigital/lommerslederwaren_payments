@@ -635,7 +635,7 @@ class LAP_Dashboard
             echo '<li class="lap-order-item">';
             echo '<div class="lap-order-info">';
             echo '<strong><a href="' . esc_url(admin_url('post.php?post=' . $order->get_id() . '&action=edit')) . '">#' . esc_html($order->get_order_number()) . '</a></strong>';
-            echo '<div class="lap-order-meta">' . esc_html($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()) . ' &middot; ' . esc_html(human_time_diff($order->get_date_created()->getTimestamp(), current_time('timestamp'))) . ' geleden</div>';
+            echo '<div class="lap-order-meta">' . esc_html($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()) . ' &middot; ' . esc_html(human_time_diff($order->get_date_created()->getTimestamp(), time())) . ' geleden</div>';
             echo '</div>';
             echo '<div class="lap-order-right">';
             echo '<div class="lap-order-amount">' . wp_kses_post($order->get_formatted_order_total()) . '</div>';
@@ -699,7 +699,7 @@ class LAP_Dashboard
 
         echo '<ul class="lap-order-list">';
         foreach ($orders as $order) {
-            $days_old = round((current_time('timestamp') - $order->get_date_created()->getTimestamp()) / DAY_IN_SECONDS, 1);
+            $days_old = round((time() - $order->get_date_created()->getTimestamp()) / DAY_IN_SECONDS, 1);
             $pay_url = $order->get_checkout_payment_url();
 
             $reminder_url = wp_nonce_url(
@@ -777,7 +777,7 @@ class LAP_Dashboard
         foreach ($orders as $order) {
             $days_since_paid = 0;
             if ($order->get_date_paid()) {
-                $days_since_paid = round((current_time('timestamp') - $order->get_date_paid()->getTimestamp()) / DAY_IN_SECONDS, 1);
+                $days_since_paid = round((time() - $order->get_date_paid()->getTimestamp()) / DAY_IN_SECONDS, 1);
             }
 
             echo '<li class="lap-order-item">';
@@ -855,7 +855,7 @@ class LAP_Dashboard
             $days_ago = 0;
             $modified = $order->get_date_modified();
             if ($modified) {
-                $days_ago = round((current_time('timestamp') - $modified->getTimestamp()) / DAY_IN_SECONDS, 1);
+                $days_ago = round((time() - $modified->getTimestamp()) / DAY_IN_SECONDS, 1);
             }
 
             echo '<li class="lap-order-item">';
@@ -1601,7 +1601,7 @@ class LAP_Dashboard
         }
 
         // Bepaal datum ranges op basis van periode
-        $now = current_time('timestamp');
+        $now = time();
         switch ($period) {
             case 'week':
                 $current_start = strtotime('this week monday', $now);
@@ -1706,7 +1706,7 @@ class LAP_Dashboard
         // Gemiddelde leeftijd betaling verzocht
         if (!empty($payment_requested)) {
             $total_age = 0;
-            $now_ts = current_time('timestamp');
+            $now_ts = time();
             foreach ($payment_requested as $order) {
                 $created = $order->get_date_created();
                 if ($created) {
@@ -1826,7 +1826,7 @@ class LAP_Dashboard
         $overdue_threshold_days = get_option('lap_auto_cancel_days', 7);
         $stats['overdue_days'] = $overdue_threshold_days;
 
-        $overdue_date = strtotime("-{$overdue_threshold_days} days", current_time('timestamp'));
+        $overdue_date = strtotime("-{$overdue_threshold_days} days", time());
 
         $overdue_orders = array();
         foreach ($payment_requested as $order) {
